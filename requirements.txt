@@ -1,3 +1,0 @@
-# OmniSync Standalone Dependencies (Pinned for Supply Chain Security)
-mcp==0.1.0
-json-rpc==1.15.0
