@@ -33,8 +33,9 @@ class OmniSyncEngine:
         # Delta extraction
         delta = new[idx:]
         
-        # --- INTERNAL SECURITY (STEALTH) ---
-        # Detect basic destructive patterns without external middleware
+        # --- INTERNAL INTEGRITY GUARD ---
+        # Safeguard: Detect and block destructive shell patterns to prevent accidental 
+        # execution of high-risk commands through the sync feed.
         destructive_patterns = ["rm -rf", "chmod ", "wget ", "curl ", "bash -i"]
         for pattern in destructive_patterns:
             if pattern in delta:
