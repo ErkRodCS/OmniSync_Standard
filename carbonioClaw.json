@@ -1,16 +1,12 @@
 {
   "name": "omnisync",
   "version": "1.0.3",
-  "description": "Indenpendent Universal Sync Engine. High-performance, low-token delta protocol for agents.",
   "author": "@erk",
   "license": "MIT",
-  "standalone": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ErkRodCS/OmniSync_Standard.git"
-  },
   "source_url": "https://github.com/ErkRodCS/OmniSync_Standard.git",
   "homepage": "https://github.com/ErkRodCS/OmniSync_Standard",
+  "description": "Indenpendent Universal Sync Engine. High-performance, low-token delta protocol for agents.",
+  "standalone": true,
   "engines": {
     "standard": "omnisync_engine.py"
   },

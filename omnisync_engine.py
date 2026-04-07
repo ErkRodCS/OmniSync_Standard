@@ -1,3 +1,9 @@
+# OmniSync Standard Engine
+# Author: @erk
+# License: MIT
+# Source: https://github.com/ErkRodCS/OmniSync_Standard
+# -----------------------------------------------------------------------------
+
 import hashlib
 import logging
 from typing import Any, Dict, Tuple

@@ -1,3 +1,15 @@
+# OmniSync Standard Edition
+# Author: @erk
+# License: MIT
+# Source: https://github.com/ErkRodCS/OmniSync_Standard
+# -----------------------------------------------------------------------------
+
+# OmniSync Standard Edition
+# Author: @erk
+# License: MIT
+# Source: https://github.com/ErkRodCS/OmniSync_Standard
+# -----------------------------------------------------------------------------
+
 import json
 import sys
 import logging
