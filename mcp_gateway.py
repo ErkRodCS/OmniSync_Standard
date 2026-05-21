@@ -4,82 +4,64 @@
 # Source: https://github.com/ErkRodCS/OmniSync_Standard
 # -----------------------------------------------------------------------------
 
-# OmniSync Standard Edition
-# Author: @erk
-# License: MIT
-# Source: https://github.com/ErkRodCS/OmniSync_Standard
-# -----------------------------------------------------------------------------
-
-import json
-import sys
-import logging
+import asyncio
+from mcp.server import Server
+import mcp.types as types
+from mcp.server.stdio import stdio_server
 from omnisync_engine import OmniSyncEngine
 
-# Basic Configuration
-logging.basicConfig(level=logging.INFO, format='%(name)s - %(message)s')
-logger = logging.getLogger("OmniSyncGateway")
+server = Server("omnisync-standard")
+engine = OmniSyncEngine()
 
-class OmniSyncGateway:
-    """
-    Minimalist MCP Gateway for OmniSync over stdio (JSON-RPC 2.0).
-    Zero dependencies on Pip libraries.
-    """
-    def __init__(self):
-        self.engine_standard = OmniSyncEngine()
-        logger.info("📡 OmniSync Gateway (Standard Edition) is ready for connections via stdio.")
-
-    def run(self):
-        """Main loop reading from stdin."""
-        for line in sys.stdin:
-            try:
-                request = json.loads(line)
-                response = self.handle_request(request)
-                sys.stdout.write(json.dumps(response) + "\n")
-                sys.stdout.flush()
-            except Exception as e:
-                logger.error(f"⚠️ Error processing request: {str(e)}")
-
-    def handle_request(self, request: dict) -> dict:
-        """Processes JSON-RPC requests for tools."""
-        method = request.get("method")
-        params = request.get("params", {})
-        req_id = request.get("id")
-        
-        if method == "call_tool":
-            tool_name = params.get("name")
-            tool_args = params.get("arguments", {})
-            
-            if tool_name == "sync_standard":
-                result = self.engine_standard.execute_sync(tool_args)
-                return self.format_rpc_response(result, req_id)
-            else:
-                return self.format_rpc_error(f"Unknown tool: {tool_name}", req_id)
-                
-        return self.format_rpc_error(f"Unimplemented method: {method}", req_id)
-
-    def format_rpc_response(self, result: dict, req_id: Any) -> dict:
-        """Formats a standard JSON-RPC success response."""
-        return {
-            "jsonrpc": "2.0",
-            "result": {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"🔄 OmniSync Standard Result: [{result.get('changed', False)}]\nDelta: {result.get('delta', 'N/A')}\nCursor: {result.get('cursor', 'N/A')}"
+@server.list_tools()
+async def handle_list_tools() -> list[types.Tool]:
+    """Retorna las herramientas expuestas por OmniSync Standard."""
+    return [
+        types.Tool(
+            name="sync_standard",
+            description="Standard SHA-256 secure synchronization (FREE)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "feed_id": {
+                        "type": "string",
+                        "description": "Unique identifier for the sync feed"
+                    },
+                    "old_content": {
+                        "type": "string",
+                        "description": "Previous version of the text"
+                    },
+                    "new_content": {
+                        "type": "string",
+                        "description": "Updated version of the text"
+                    },
+                    "last_hash": {
+                        "type": "string",
+                        "description": "Optional. Previous SHA-256 hash for validation"
                     }
-                ]
-            },
-            "id": req_id
-        }
+                },
+                "required": ["feed_id", "new_content", "old_content"]
+            }
+        )
+    ]
 
-    def format_rpc_error(self, message: str, req_id: Any) -> dict:
-        """Formats a standard JSON-RPC error response."""
-        return {
-            "jsonrpc": "2.0",
-            "error": {"code": -32601, "message": message},
-            "id": req_id
-        }
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: dict | None) -> list[types.TextContent]:
+    """Procesa las llamadas a herramientas de OmniSync Standard."""
+    args = arguments or {}
+    if name == "sync_standard":
+        try:
+            result = engine.execute_sync(args)
+            output = f"🔄 OmniSync Standard Result: [{result.get('changed', False)}]\nDelta: {result.get('delta', 'N/A')}\nCursor: {result.get('cursor', 'N/A')}"
+            return [types.TextContent(type="text", text=output)]
+        except Exception as e:
+            return [types.TextContent(type="text", text=f"❌ Error en sync_standard: {str(e)}")]
+    
+    raise ValueError(f"Unknown tool: {name}")
+
+async def main():
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(read_stream, write_stream, server.create_initialization_options())
 
 if __name__ == "__main__":
-    gateway = OmniSyncGateway()
-    gateway.run()
+    asyncio.run(main())

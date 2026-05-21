@@ -1,5 +1,6 @@
 {
   "omnisync": {
+    "version": "1.0.3",
     "security": {
       "buffer_size_limit_kb": 2048,
       "enable_pattern_watchdog": true,
