@@ -59,7 +59,7 @@ async def handle_call_tool(name: str, arguments: dict | None) -> list[types.Text
     
     raise ValueError(f"Unknown tool: {name}")
 
-async def main():
+async def main() -> None:
     async with stdio_server() as (read_stream, write_stream):
         await server.run(read_stream, write_stream, server.create_initialization_options())
 
